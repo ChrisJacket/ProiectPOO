@@ -1,31 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace ProiectPOO;
 
-namespace ProiectPOO;
-
-class Magazin
+public class Magazin
 {
-    private List<Comanda> Comenzi = new List<Comanda>();
-    private string GenerateNextID()
+    private List<Comanda> Comenzi { get; set; }
+    private List<Produs> StocMagazin { get; set; }
+    public List<User> Users { get; private set; }
+
+    public Magazin()
+    {
+        Comenzi = new List<Comanda>();
+        StocMagazin = new List<Produs>();
+        Users = new List<User>();
+    }
+
+    public List<User> LoadUsersFromFile()
+    {
+        throw new NotImplementedException();      
+    }
+    public List<Comanda> LoadOrdersFromFile()
+    {
+        throw new NotImplementedException();
+    }
+    public List<Produs> LoadProductsFromFile()
+    {
+        throw new NotImplementedException();
+    }
+
+    private string GenerateNextOrderId()
     {
         Random Randomizer = new Random();
         string randomID;
         do
-            randomID = Randomizer.Next(100000, 999999).ToString();
+            randomID = "O" + Randomizer.Next(100000, 999999).ToString(); // O de la order
         while (IdAlreadyExists(randomID));
         return randomID;
     }
-
-    public void AddOrder(List<Produs> productsOrdered, Client recipient, OrderStatus status, ShippingAddress deliveryAddress, DateOnly deliveryDate)
+    private string GenerateNextProductId()
     {
-        Comanda NewOrder = new Comanda(productsOrdered, GenerateNextID(), recipient, OrderStatus.Sent, deliveryAddress);
-        Comenzi.Add(NewOrder);
+        Random Randomizer = new Random();
+        string randomID;
+        do
+            randomID = "P" + Randomizer.Next(100000, 999999).ToString(); // O de la order
+        while (IdAlreadyExists(randomID));
+        return randomID;
     }
-
-    public bool IdAlreadyExists(string proposedId)
+    private bool IdAlreadyExists(string proposedId)
     {
         foreach(Comanda comanda in Comenzi)
         {
@@ -34,12 +53,33 @@ class Magazin
         return false;
     }
 
-    public void UpdateStore()
+    public void AddOrder(Dictionary<Produs, int> productsOrdered, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
     {
-        foreach(Comanda comanda in Comenzi)
+        Comanda NewOrder = new Comanda(productsOrdered, GenerateNextOrderId(), recipient, OrderStatus.BeingProcessed, deliveryAddress);
+        Comenzi.Add(NewOrder);
+    }
+
+    public void AddProduct(string productName, double price, int stock, ProductCategory productCategory)
+    {
+        Produs NewProduct = new Produs(GenerateNextProductId(), productName, price, stock, productCategory);
+        StocMagazin.Add(NewProduct);
+    }
+
+    public void EditOrder(Comanda comanda)
+    {
+        foreach(Comanda comanda_aux in Comenzi)
         {
-            
+            if(comanda_aux.ID == comanda.ID)
+            {
+                // logica de modificare a comenzii
+                break;
+            }
         }
+    }
+
+    public void AddProduct(Admin admin)
+    {
+        throw new NotImplementedException();
     }
 
 }

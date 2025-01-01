@@ -1,7 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace ProiectPOO;
-
+﻿namespace ProiectPOO;
 public enum OrderStatus
 {
     BeingProcessed,
@@ -20,7 +17,7 @@ public struct ShippingAddress
 }
 public class Comanda
 {
-    private List<Produs> ProductsOrdered;
+    private Dictionary<Produs, int> ProductsOrdered;
     public string ID { get; private set; }
     public DateOnly PlacementDate { get; private set; }
     private Client Recipient { get; set; }
@@ -28,7 +25,7 @@ public class Comanda
     private ShippingAddress DeliveryAddress { get; set; }
     private DateOnly DeliveryDate { get; set; }
 
-    public Comanda(List<Produs> productsOrdered, string iD, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
+    public Comanda(Dictionary<Produs, int> productsOrdered, string iD, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
     {
         ProductsOrdered = productsOrdered;
         ID = iD;
