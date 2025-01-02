@@ -18,10 +18,10 @@ public enum ProductCategory
 }
 public class Produs
 {
-    private string ID { get; set; }
+    public string ID { get; private set; }
     private string Name { get; set; }
     private string? Description { get; set; }
-    private double Price { get; set; }
+    public double Price { get; private set; }
     private int Stock { get; set; }
     private int? Rating { get; set; }
     public ProductCategory? Category { get; private set; }
@@ -31,52 +31,27 @@ public class Produs
     {
         ID = id;
         Name = name;
-        Price = price;
+        Price = CalculateFinalPrice(price);
         Stock = stock;
         Category = category;
         
         ThisProductsDiscounts = new Dictionary<DiscountTypes, bool>()
         {
-            // nu e nicio reducere in curs in mod default
+            // nu e nicio reducere in curs in mod implicit
             {DiscountTypes.TwoPlusOne, false},
             {DiscountTypes.Percentage, false},
             {DiscountTypes.Constant, false}
         };
     }
 
-    public Produs(string name, double price, string description, int stock, ProductCategory category)
-    {
-        Name = name;
-        Price = price;
-        Description = description;
-        Stock = stock;
-        Category = category;
-
-        ThisProductsDiscounts = new Dictionary<DiscountTypes, bool>()
-        {
-            // nu e nicio reducere in curs in mod default
-            {DiscountTypes.TwoPlusOne, false},
-            {DiscountTypes.Percentage, false},
-            {DiscountTypes.Constant, false}
-        };
-    }
-
-    void UpdateProduct()
-    {
-        // meniu de modificare produs
-        // pret, categorie, nume eventual
-    }
-
-
-
-    private void AddDiscount(DiscountTypes discountType)
+    public void AddDiscount(DiscountTypes discountType)
     {
         // vom cauta un produs anume cu un for, si ii vom adauga un tip anume de reducere
         // metoda asta se va aplica doar pe obiectul ala
     }
-    private int CalculatePrice(int productOriginalPrice)
+    private double CalculateFinalPrice(double productOriginalPrice)
     {
-        int FinalPrice = productOriginalPrice;
+        double FinalPrice = productOriginalPrice;
 
         // logica de calcul a pretului bazat pe ce reduceri active are produsul
         // sau ziceti sa calculam pretul la momentul comenzii?

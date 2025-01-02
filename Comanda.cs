@@ -34,5 +34,16 @@ public class Comanda
         Status = status;
         DeliveryAddress = deliveryAddress;
     }
+
+    public double CalculateOrderPrice()
+    {
+        double OrderPrice = 0;
+        foreach(var product in ProductsOrdered)
+        {
+            OrderPrice += product.Key.Price * product.Value;
+        }
+        return OrderPrice;
+
+    }
 }
 

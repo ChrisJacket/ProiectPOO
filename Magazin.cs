@@ -46,25 +46,50 @@ public class Magazin
     }
     private bool IdAlreadyExists(string proposedId)
     {
-        foreach(Comanda comanda in Comenzi)
-        {
-            if(comanda.ID == proposedId) return true;
-        }
+        if (proposedId[0] == 'O')
+            foreach (Comanda comanda in Comenzi)
+            {
+                if (comanda.ID == proposedId) return true;
+            }
+        else if (proposedId[0] == 'P')
+            foreach (Produs produs in StocMagazin)
+            {
+                if (produs.ID == proposedId) return true;
+            }
         return false;
     }
-
     public void AddOrder(Dictionary<Produs, int> productsOrdered, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
     {
         Comanda NewOrder = new Comanda(productsOrdered, GenerateNextOrderId(), recipient, OrderStatus.BeingProcessed, deliveryAddress);
-        Comenzi.Add(NewOrder);
+        if (OrderAlreadyExists(NewOrder))
+            Console.WriteLine("Order has already been added!");
+        else 
+            Comenzi.Add(NewOrder);
     }
-
+    private bool OrderAlreadyExists(Comanda comanda)
+    {
+        foreach(Comanda comanda_aux in Comenzi)
+            if(comanda.ID == comanda_aux.ID) return true;
+        return false;
+    }
     public void AddProduct(string productName, double price, int stock, ProductCategory productCategory)
     {
         Produs NewProduct = new Produs(GenerateNextProductId(), productName, price, stock, productCategory);
-        StocMagazin.Add(NewProduct);
+        if (ProductAlreadyExists(NewProduct))
+            Console.WriteLine("Product has already been added!");
+        else
+            StocMagazin.Add(NewProduct);
     }
-
+    private bool ProductAlreadyExists(Produs produs)
+    {
+        foreach (Produs produs_aux in StocMagazin)
+        {
+            if (produs.ID == produs_aux.ID) return true;
+            // aici poate putem face o chestie, daca produsul deja exista
+            // astfel incat sa adauge stocul produsului nou la produsul care deja exista
+        }
+        return false;
+    }
     public void EditOrder(Comanda comanda)
     {
         foreach(Comanda comanda_aux in Comenzi)
@@ -76,10 +101,38 @@ public class Magazin
             }
         }
     }
-
-    public void AddProduct(Admin admin)
+    public void EditProduct(Produs produs)
     {
-        throw new NotImplementedException();
+        foreach (Produs produs_aux in StocMagazin)
+        {
+            if (produs_aux.ID == produs.ID)
+            {
+                // logica de modificare a produsului
+                break;
+            }
+        }
+    }
+    public User AuthenticateUser()
+    {
+        string email, parola;
+        while (true)
+        {
+            Console.Write("Email: ");
+            email = Console.ReadLine();
+
+            Console.Write("Parola: ");
+            parola = Console.ReadLine();
+
+            if (email != null && parola != null)
+                break;
+            else
+                Console.WriteLine("Emailul sau parola nu pot fi campuri goale!\n");
+        }
+        Console.Clear();
+
+        // Verifica daca exista utilizatorul in lista de utilizatori
+        // "=>" a se citi "cu proprietatea ca"
+        return Users.First(u => u.VerifyUserCredentials(email, parola));
     }
 
 }

@@ -6,11 +6,11 @@ public enum UserTypes
 }
 public abstract class User
 {
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
-    public string Password { get; private set; }
-    public string EmailAddress { get; private set; }
-    public UserTypes UserType { get; private set; }
+    public string FirstName { get; protected set; }
+    public string LastName { get; protected set; }
+    protected string Password { get; set; }
+    public string EmailAddress { get; protected set; }
+    public UserTypes UserType { get; protected set; }
 
     protected User(string firstName, string lastName, string password, string emailAddress, UserTypes userType)
     {
@@ -20,16 +20,12 @@ public abstract class User
         EmailAddress = emailAddress;
         UserType = userType;
     }
-
-    public bool Autentificare(string emailToVerify, string passwordToVerify)
+    
+    public bool VerifyUserCredentials(string emailToVerify, string passwordToVerify)
     {
         return Password == passwordToVerify && EmailAddress == emailToVerify; ;
     }
 
-    public virtual void RunMenu()
-    {
-
-    }
 }
 
 public class Client : User
@@ -39,7 +35,7 @@ public class Client : User
     {
     }
 
-    public override void RunMenu()
+    public void RunMenu()
     {
         bool running = true;
         while (running)
@@ -57,16 +53,16 @@ public class Client : User
             switch (input)
             {
                 case "1":
-                    // ViewProducts(magazin);
+                    // ViewProducts();
                     break;
                 case "2":
-                    // AddToCart(client, magazin);
+                    // AddToCart();
                     break;
                 case "3":
-                    // FinalizeOrder(client);
+                    // FinalizeOrder();
                     break;
                 case "4":
-                    // ViewWishlist(client);
+                    // ViewWishlist();
                     break;
                 case "5":
                     running = false;
@@ -87,7 +83,7 @@ public class Admin : User
     {
     }
 
-    public override void RunMenu()
+    public void RunMenu()
     {
         bool running = true;
         while (running)
@@ -106,13 +102,13 @@ public class Admin : User
             switch (input)
             {
                 case "1":
-                    // AddProduct(admin, magazin);
+                    // AddProduct();
                     break;
                 case "2":
-                    // EditProduct(admin, magazin);
+                    // EditProduct();
                     break;
                 case "3":
-                    // DeleteProduct(admin, magazin);
+                    // DeleteProduct();
                     break;
                 case "4":
                     throw new NotImplementedException();
