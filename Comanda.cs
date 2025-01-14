@@ -24,6 +24,7 @@ public class Comanda
     private OrderStatus Status { get; set; }
     private ShippingAddress DeliveryAddress { get; set; }
     private DateOnly DeliveryDate { get; set; }
+    private double OrderPrice { get; set; }
 
     public Comanda(Dictionary<Produs, int> productsOrdered, string iD, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
     {
@@ -33,17 +34,34 @@ public class Comanda
         Recipient = recipient;
         Status = status;
         DeliveryAddress = deliveryAddress;
+        OrderPrice = CalculateOrderPrice();
     }
 
     public double CalculateOrderPrice()
     {
-        double OrderPrice = 0;
-        foreach(var product in ProductsOrdered)
+        double OrderPrice = 0, ValueToAdd;
+        foreach(var ProductAmountPair in ProductsOrdered)
         {
-            OrderPrice += product.Key.Price * product.Value;
+            ValueToAdd = ProductAmountPair.Key.Price * ProductAmountPair.Value;
+            // verific conditiile reducerilor
+            if (ProductAmountPair.Key.ThisProductsDiscounts[DiscountTypes.Constant] == true && ProductAmountPair.Key.ConstantDiscount != null)
+            {
+                ValueToAdd -= (int)ProductAmountPair.Key.ConstantDiscount;
+            }
+
+            if (ProductAmountPair.Key.ThisProductsDiscounts[DiscountTypes.Percentage] == true && ProductAmountPair.Key.PercentageDiscount != null)
+            {
+                ValueToAdd -= (ValueToAdd * (int)ProductAmountPair.Key.PercentageDiscount) / 100;
+            }
+
+            if (ProductAmountPair.Value > 2 && ProductAmountPair.Key.ThisProductsDiscounts[DiscountTypes.TwoPlusOne] == true)
+            {
+                ValueToAdd = ValueToAdd * (2 / 3); 
+                // fiecare al 3lea produs cumparat e gratis
+            }
+            OrderPrice += ValueToAdd;
         }
         return OrderPrice;
-
     }
 }
 
