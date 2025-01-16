@@ -361,7 +361,6 @@ public class Magazin
 
         }
     }
-
     private void AddProduct(Admin admin)
     {
         string ProposedProductName;
@@ -701,7 +700,7 @@ public class Magazin
             string products = string.Join(";", order.ProductsOrdered.Select(p => $"{p.Key.ID}:{p.Value}"));
             string address = $"{order.DeliveryAddress.City},{order.DeliveryAddress.Country},{order.DeliveryAddress.Postcode},{order.DeliveryAddress.Address}";
         
-            string line = $"{order.ID}|{order.PlacementDate}|{order.Recipient.Email}|{order.Status}|{address}|{order.OrderPrice}|{products}";
+            string line = $"{order.ID}|{order.PlacementDate}|{order.Recipient.EmailAddress}|{order.Status}|{address}|{order.OrderPrice}|{products}";
 
             // Adăugăm linia în fișier
             File.AppendAllText(filePath, line + Environment.NewLine);
