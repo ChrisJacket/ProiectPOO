@@ -15,7 +15,7 @@ public abstract class User
 {
     public string FirstName { get; protected set; }
     public string LastName { get; protected set; }
-    protected string Password { get; set; }
+    protected internal string Password { get; set; }
     public string EmailAddress { get; protected set; }
     public UserTypes UserType { get; protected set; }
 
@@ -129,7 +129,7 @@ public class Admin : User
     {
     }
 
-    public void RunMenu()
+    public void RunMenu(Admin ThisAdmin, Magazin magazin)
     {
         bool running = true;
         while (running)
@@ -146,25 +146,23 @@ public class Admin : User
             switch (input)
             {
                 case "1":
-                    // ManageStore();
-                    // 
+                    magazin.ManageStore(ThisAdmin);
+                    
                     // functie multifunctionala pentru adaugat, editat si sters produse
                     // inclusiv administrat stocurile
-                    // produsele cu stoc redus ar trebui semnalate cumva
-                    // adaugatul de discounturi probabil vine tot aici
+                    // produsele cu stoc redus sunt semnalate
+                    // adaugatul de discounturi vine tot aici
                     break;
                 case "2":
-                    // ManageOrders();
-                    //
-                    // pentru vizualizat, editat si modificat statusul comenzilor
+                    magazin.ManageOrders(ThisAdmin);
+                    
+                    // pentru vizualizat si modificat statusul comenzilor
                     break;
                 case "3":
-                    // CreateSalesReport();
-                    //
-                    // asta ar trebui sa ofere statistici
-                    // precum sa treaca prin toate comenzile existente care nu au fost anulate
-                    // si sa arate cele mai cumparate produse
-                    // sau cifra totala de venituri
+                    magazin.CreateSalesReport(ThisAdmin);
+                    
+                    // ofera statistici
+                    // precum cifra de afaceri, numarul de comenzi, cele mai vandute produse
                     break;
                 case "4":
                     // Exit
