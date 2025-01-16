@@ -32,6 +32,7 @@ public abstract class User
 public class Client : User
 {
     public Dictionary<Produs, int> ShoppingCart { get; protected set; }
+    public string Email { get; }
 
     public Client(string firstName, string lastName, string password, string emailAddress)
         : base(firstName, lastName, password, emailAddress, UserTypes.Client)

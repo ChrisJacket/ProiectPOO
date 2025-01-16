@@ -19,10 +19,10 @@ public enum ProductCategory
 public class Produs
 {
     public string ID { get; private set; }
-    private string Name { get; set; }
+    internal string Name { get; set; }
     private string? Description { get; set; }
     public double Price { get; private set; }
-    private int Stock { get; set; }
+    internal int Stock { get; set; }
     private int? Rating { get; set; }
     public ProductCategory? Category { get; private set; }
     public Dictionary<DiscountTypes, bool> ThisProductsDiscounts { get; private set; }
@@ -108,4 +108,10 @@ public class Produs
             ThisProductsDiscounts[key] = false;
         }
     }
+    
+    public string ToFileFormat()
+        {
+            string discounts = string.Join(",", ThisProductsDiscounts.Where(d => d.Value).Select(d => d.Key.ToString()));
+            return $"{ID}|{Name}|{Price}|{Stock}|{Category}|{discounts}|{PercentageDiscount}|{ConstantDiscount}";
+        }
 }

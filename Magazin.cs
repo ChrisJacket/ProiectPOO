@@ -151,67 +151,60 @@ public class Magazin
         return orders;
     }
     public List<Produs> LoadProductsFromFile()
-{
-    List<Produs> products = new List<Produs>();
-
-    try
     {
         string filePath = "products.txt";
+        List<Produs> products = new List<Produs>();
 
-        // Dacă fișierul nu există, îl creăm
-        if (!File.Exists(filePath))
+        try
         {
-            // Creăm fișierul gol
-            File.Create(filePath).Dispose();
-            Console.WriteLine($"Fișierul {filePath} nu exista. A fost creat.");
-        }
-
-        var lines = File.ReadAllLines(filePath);
-
-        foreach (var line in lines)
-        {
-            var productData = line.Split(',');
-
-            string id = productData[0];
-            string name = productData[1];
-            double price = double.Parse(productData[2]);
-            int stock = int.Parse(productData[3]);
-            ProductCategory category = Enum.Parse<ProductCategory>(productData[4]);
-
-            // Creăm produsul și-l adăugăm în lista de produse
-            Produs product = new Produs(id, name, price, stock, category);
-
-            // Dacă există reduceri pentru produs, le adăugăm (dacă sunt specificate în fișier)
-            if (productData.Length > 5)
+            if (File.Exists(filePath))
             {
-                string discountType = productData[5];
+                var lines = File.ReadAllLines(filePath);
+                foreach (var line in lines)
+                {
+                    var fields = line.Split('|');
+                    string id = fields[0];
+                    string name = fields[1];
+                    double price = double.Parse(fields[2]);
+                    int stock = int.Parse(fields[3]);
+                    ProductCategory category = Enum.Parse<ProductCategory>(fields[4]);
+                
+                    Produs product = new Produs(id, name, price, stock, category);
 
-                if (discountType == "Percentage" && productData.Length > 6)
-                {
-                    int percentageDiscount = int.Parse(productData[6]);
-                    product.AddDiscount(DiscountTypes.Percentage, percentageDiscount);
-                }
-                else if (discountType == "Constant" && productData.Length > 6)
-                {
-                    int constantDiscount = int.Parse(productData[6]);
-                    product.AddDiscount(DiscountTypes.Constant, constantDiscount);
-                }
-                else if (discountType == "TwoPlusOne")
-                {
-                    product.AddDiscount(DiscountTypes.TwoPlusOne, 0);
+                    // Aplica reducerile
+                    if (!string.IsNullOrEmpty(fields[5]))
+                    {
+                        var discounts = fields[5].Split(',');
+                        foreach (var discount in discounts)
+                        {
+                            DiscountTypes discountType = Enum.Parse<DiscountTypes>(discount);
+                            int discountValue = 0;
+                        
+                            if (discountType == DiscountTypes.Percentage)
+                                discountValue = int.Parse(fields[6]);
+                            else if (discountType == DiscountTypes.Constant)
+                                discountValue = int.Parse(fields[7]);
+
+                            product.AddDiscount(discountType, discountValue);
+                        }
+                    }
+
+                    products.Add(product);
                 }
             }
-
-            products.Add(product);
+            else
+            {
+                Console.WriteLine("Fișierul de produse nu există. Se va crea unul nou la prima salvare.");
+            }
         }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Eroare la citirea fișierului de produse: {ex.Message}");
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la citirea produselor: {ex.Message}");
+        }
+
+        return products;
     }
 
-    return products;
-}
 
 
     private string GenerateNextOrderId()
@@ -379,4 +372,45 @@ public class Magazin
             Console.WriteLine($"Eroare la scrierea în fișier: {ex.Message}");
         }
     }
+    public void SaveOrderToFile(Comanda order)
+    {
+        string filePath = "orders.txt";
+
+        try
+        {
+            // Construim manual linia pentru fișier
+            string products = string.Join(";", order.ProductsOrdered.Select(p => $"{p.Key.ID}:{p.Value}"));
+            string address = $"{order.DeliveryAddress.City},{order.DeliveryAddress.Country},{order.DeliveryAddress.Postcode},{order.DeliveryAddress.Address}";
+        
+            string line = $"{order.ID}|{order.PlacementDate}|{order.Recipient.Email}|{order.Status}|{address}|{order.OrderPrice}|{products}";
+
+            // Adăugăm linia în fișier
+            File.AppendAllText(filePath, line + Environment.NewLine);
+            Console.WriteLine("Comanda a fost salvată cu succes în fișier.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la salvarea comenzii: {ex.Message}");
+        }
+    }
+
+    
+    public void SaveProductToFile(Produs product)
+    {
+        string filePath = "products.txt";
+
+        try
+        {
+            // Scrie produsul în format text în fișier
+            File.AppendAllText(filePath, product.ToFileFormat() + Environment.NewLine);
+            Console.WriteLine("Produsul a fost salvat cu succes în fișier.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la salvarea produsului: {ex.Message}");
+        }
+    }
+
+
+
 }

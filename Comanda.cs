@@ -17,14 +17,14 @@ public struct ShippingAddress
 }
 public class Comanda
 {
-    private Dictionary<Produs, int> ProductsOrdered;
+    internal Dictionary<Produs, int> ProductsOrdered;
     public string ID { get; private set; }
     public DateOnly PlacementDate { get; private set; }
-    private Client Recipient { get; set; }
-    private OrderStatus Status { get; set; }
-    private ShippingAddress DeliveryAddress { get; set; }
+    internal Client Recipient { get; set; }
+    internal OrderStatus Status { get; set; }
+    internal ShippingAddress DeliveryAddress { get; set; }
     private DateOnly DeliveryDate { get; set; }
-    private double OrderPrice { get; set; }
+    internal double OrderPrice { get; set; }
 
     public Comanda(Dictionary<Produs, int> productsOrdered, string iD, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
     {
