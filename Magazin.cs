@@ -1,5 +1,7 @@
 ﻿namespace ProiectPOO;
-
+using System;
+using System.Collections.Generic;
+using System.IO;
 public class Magazin
 {
     private List<Comanda> Comenzi { get; set; }
@@ -12,19 +14,197 @@ public class Magazin
         StocMagazin = new List<Produs>();
         Users = new List<User>();
     }
-
-    public List<User> LoadUsersFromFile()
+    
+    public void LoadUsersFromFile()
     {
-        throw new NotImplementedException();
+        string filePath = "users.txt";
+    
+        // Verificăm dacă fișierul există
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("Fișierul cu utilizatori nu a fost găsit.");
+            return;
+        }
+
+        try
+        {
+            var lines = File.ReadAllLines(filePath);
+
+            foreach (var line in lines)
+            {
+                var userData = line.Split(',');
+
+                // Asigurăm că avem suficiente date
+                if (userData.Length == 5)
+                {
+                    string surname = userData[0].Trim();
+                    string name = userData[1].Trim();
+                    string password = userData[2].Trim();
+                    string email = userData[3].Trim();
+                    string userTypeString = userData[4].Trim();
+
+                    // Încercăm să convertim userTypeString în UserTypes
+                    UserTypes userType;
+                    if (Enum.TryParse(userTypeString, true, out userType))
+                    {
+                        // Creăm un utilizator de tipul corespunzător
+                        User user;
+                        if (userType == UserTypes.Admin)
+                        {
+                            user = new Admin(surname, name, password, email);
+                        }
+                        else
+                        {
+                            user = new Client(surname, name, password, email);
+                        }
+
+                        // Adăugăm utilizatorul în lista de utilizatori
+                        Users.Add(user);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Tip utilizator invalid: {userTypeString}. Ignorăm această linie.");
+                    }
+                }
+            }
+
+            Console.WriteLine("Utilizatorii au fost încărcați cu succes.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la citirea fișierului de utilizatori: {ex.Message}");
+        }
     }
+
+    
+    
+    
     public List<Comanda> LoadOrdersFromFile()
     {
-        throw new NotImplementedException();
+        List<Comanda> orders = new List<Comanda>();
+
+        try
+        {
+            string filePath = "orders.txt";
+
+            // Verificăm dacă fișierul există, dacă nu, îl creăm
+            if (!File.Exists(filePath))
+            {
+                // Creăm fișierul gol
+                File.Create(filePath).Dispose();
+                Console.WriteLine($"Fișierul {filePath} nu există. A fost creat.");
+            }
+
+            var lines = File.ReadAllLines(filePath);
+
+            foreach (var line in lines)
+            {
+                var orderData = line.Split(',');
+
+                if (orderData.Length < 9)
+                {
+                    Console.WriteLine("Linie incorectă în fișierul de comenzi: " + line);
+                    continue;
+                }
+
+                string orderId = orderData[0];
+                DateOnly orderDate = DateOnly.Parse(orderData[1]);
+                OrderStatus orderStatus = Enum.Parse<OrderStatus>(orderData[2]);
+                string customerName = orderData[3];
+                string customerEmail = orderData[4];
+                string city = orderData[5];
+                string country = orderData[6];
+                string postcode = orderData[7];
+                
+                ShippingAddress address = new ShippingAddress
+                {
+                    City = city,
+                    Country = country,
+                    Postcode = postcode,
+                    Address = $"{orderData[5]} {orderData[6]}"
+                };
+
+                // Extragem produsele comandate
+                Dictionary<Produs, int> productsOrdered = new Dictionary<Produs, int>();
+                
+                for (int i = 8; i < orderData.Length; i += 2)
+                {
+                    string productName = orderData[i];
+                    int quantity = int.Parse(orderData[i + 1]);
+
+                    // Vom crea un produs cu un preț fictiv, deoarece nu avem prețul real în fișier
+                    // În mod normal, ar trebui să obținem produsul dintr-o bază de date sau să-l găsim într-o listă preexistentă
+                    Produs product = new Produs(productName, productName, 10.0, 100, ProductCategory.Auto); // Exemplu de produs cu preț de 10.0
+                    productsOrdered.Add(product, quantity);
+                }
+
+                // Creăm comanda
+                Comanda order = new Comanda(productsOrdered, orderId, new Client(customerName, customerName, "password", customerEmail), orderStatus, address);
+                orders.Add(order);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la citirea fișierului de comenzi: {ex.Message}");
+        }
+
+        return orders;
     }
     public List<Produs> LoadProductsFromFile()
     {
-        throw new NotImplementedException();
+        string filePath = "products.txt";
+        List<Produs> products = new List<Produs>();
+
+        try
+        {
+            if (File.Exists(filePath))
+            {
+                var lines = File.ReadAllLines(filePath);
+                foreach (var line in lines)
+                {
+                    var fields = line.Split('|');
+                    string id = fields[0];
+                    string name = fields[1];
+                    double price = double.Parse(fields[2]);
+                    int stock = int.Parse(fields[3]);
+                    ProductCategory category = Enum.Parse<ProductCategory>(fields[4]);
+                
+                    Produs product = new Produs(id, name, price, stock, category);
+
+                    // Aplica reducerile
+                    if (!string.IsNullOrEmpty(fields[5]))
+                    {
+                        var discounts = fields[5].Split(',');
+                        foreach (var discount in discounts)
+                        {
+                            DiscountTypes discountType = Enum.Parse<DiscountTypes>(discount);
+                            int discountValue = 0;
+                        
+                            if (discountType == DiscountTypes.Percentage)
+                                discountValue = int.Parse(fields[6]);
+                            else if (discountType == DiscountTypes.Constant)
+                                discountValue = int.Parse(fields[7]);
+
+                            product.AddDiscount(discountType, discountValue);
+                        }
+                    }
+
+                    products.Add(product);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Fișierul de produse nu există. Se va crea unul nou la prima salvare.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la citirea produselor: {ex.Message}");
+        }
+
+        return products;
     }
+
 
     public void SignUpClient(Client ClientNou)
     {
@@ -104,6 +284,7 @@ public class Magazin
             }
         }
     }
+
     public User AuthenticateUser()
     {
         string email, parola;
@@ -120,11 +301,11 @@ public class Magazin
             else
                 Console.WriteLine("Emailul sau parola nu pot fi campuri goale!\n");
         }
+
         Console.Clear();
 
         // Verifica daca exista utilizatorul in lista de utilizatori
         // "=>" a se citi "cu proprietatea ca"
-        
         return Users.FirstOrDefault(u => u.VerifyUserCredentials(email, parola), null);
     }
 
@@ -487,6 +668,69 @@ public class Magazin
 
         }
     }
+    
+    //Adăugare clienti dacă nu sunt deja în fișier
+    private void AddUserToFile(User user)
+    {
+        string filePath = "users.txt";
+
+        try
+        {
+            using (StreamWriter sw = new StreamWriter(filePath, true))
+            {
+                // Formatează linia pentru fișier
+                string userLine =
+                    $"{user.LastName},{user.FirstName},{user.Password},{user.EmailAddress},{user.UserType}";
+                sw.WriteLine(userLine);
+            }
+
+            Console.WriteLine("Utilizatorul a fost adăugat în fișier.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la scrierea în fișier: {ex.Message}");
+        }
+    }
+    public void SaveOrderToFile(Comanda order)
+    {
+        string filePath = "orders.txt";
+
+        try
+        {
+            // Construim manual linia pentru fișier
+            string products = string.Join(";", order.ProductsOrdered.Select(p => $"{p.Key.ID}:{p.Value}"));
+            string address = $"{order.DeliveryAddress.City},{order.DeliveryAddress.Country},{order.DeliveryAddress.Postcode},{order.DeliveryAddress.Address}";
+        
+            string line = $"{order.ID}|{order.PlacementDate}|{order.Recipient.Email}|{order.Status}|{address}|{order.OrderPrice}|{products}";
+
+            // Adăugăm linia în fișier
+            File.AppendAllText(filePath, line + Environment.NewLine);
+            Console.WriteLine("Comanda a fost salvată cu succes în fișier.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la salvarea comenzii: {ex.Message}");
+        }
+    }
+
+    
+    public void SaveProductToFile(Produs product)
+    {
+        string filePath = "products.txt";
+
+        try
+        {
+            // Scrie produsul în format text în fișier
+            File.AppendAllText(filePath, product.ToFileFormat() + Environment.NewLine);
+            Console.WriteLine("Produsul a fost salvat cu succes în fișier.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Eroare la salvarea produsului: {ex.Message}");
+        }
+    }
+
+
 
     public void CreateSalesReport(Admin admin)
     {

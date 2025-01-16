@@ -17,6 +17,7 @@ public struct ShippingAddress
 }
 public class Comanda
 {
+
     public Dictionary<Produs, int> ProductsOrdered { get; private set; }
     public string ID { get; private set; }
     public DateOnly PlacementDate { get; private set; }
@@ -25,6 +26,7 @@ public class Comanda
     private ShippingAddress DeliveryAddress { get; set; }
     private DateOnly DeliveryDate { get; set; }
     public double OrderPrice { get; private set; }
+
 
     public Comanda(Dictionary<Produs, int> productsOrdered, string iD, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
     {

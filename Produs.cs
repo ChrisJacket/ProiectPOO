@@ -135,4 +135,10 @@ public class Produs
             ThisProductsDiscounts[key] = false;
         }
     }
+    
+    public string ToFileFormat()
+        {
+            string discounts = string.Join(",", ThisProductsDiscounts.Where(d => d.Value).Select(d => d.Key.ToString()));
+            return $"{ID}|{Name}|{Price}|{Stock}|{Category}|{discounts}|{PercentageDiscount}|{ConstantDiscount}";
+        }
 }

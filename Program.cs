@@ -1,6 +1,6 @@
-﻿using System.Runtime.ConstrainedExecution;
-
+using System.Runtime.ConstrainedExecution;
 namespace ProiectPOO;
+
 internal class Program
 {
     static void Main(string[] args)
