@@ -124,13 +124,16 @@ public class Magazin
 
         // Verifica daca exista utilizatorul in lista de utilizatori
         // "=>" a se citi "cu proprietatea ca"
-        return Users.First(u => u.VerifyUserCredentials(email, parola));
+        
+        return Users.FirstOrDefault(u => u.VerifyUserCredentials(email, parola), null);
     }
 
     public void ManageStore(Admin ThisAdmin)
     {
-        while (true)
+        bool running = true;
+        while (running)
         {
+            Console.Clear();
             Console.WriteLine("1. Adauga produs in magazin");
             Console.WriteLine("2. Modifica produs");
             Console.WriteLine("3. Sterge produs");
@@ -138,6 +141,7 @@ public class Magazin
             Console.WriteLine("5. Adauga discount unui produs");
             if (ProductsWithLowStockExist() == true)
                 Console.WriteLine("6. Afiseaza produsele cu stoc scazut (IMPORTANT)");
+            Console.WriteLine("0. Iesire");
 
             var input = Console.ReadLine();
             switch (input)
@@ -167,6 +171,9 @@ public class Magazin
                         ShowProductsWithLowStock();
                     else
                         Console.WriteLine("There are no products with low stock!");
+                    break;
+                case "0":
+                    running = false;
                     break;
 
             }
@@ -214,20 +221,20 @@ public class Magazin
 
     private Produs? FindProduct()
     {
-        string IdToSearch;
+        string StringToSearch;
         Produs? ProductToFind = null;
         while (true)
         {
-            Console.WriteLine("ID-ul produsului cautat:");
-            IdToSearch = Console.ReadLine();
+            Console.WriteLine("ID-ul sau numele produsului cautat:");
+            StringToSearch = Console.ReadLine();
 
-            if (IdToSearch != null)
+            if (StringToSearch != null)
                 break;
         }
 
         foreach (Produs produs in StocMagazin)
         {
-            if (produs.ID == IdToSearch)
+            if (produs.ID == StringToSearch || produs.Name == StringToSearch)
             {
                 ProductToFind = produs;
                 break;
@@ -247,8 +254,11 @@ public class Magazin
     {
 
         Produs? ProductToModify = FindProduct();
+        if (ProductToModify == null)
+            return;
 
-        while (true)
+        bool running = true;
+        while (running)
         {
             Console.WriteLine("Ce doriti sa modificati la produs?");
             Console.WriteLine("1. Numele");
@@ -278,7 +288,7 @@ public class Magazin
                     break;
 
                 case "4":
-                    // exit
+                    running = false;
                     break;
 
                 default:
@@ -314,7 +324,8 @@ public class Magazin
     private void AddProductDiscount(Admin admin)
     {
         Produs? ProductToDiscount = FindProduct();
-        while (true)
+        bool running = true;
+        while (running)
         {
             Console.WriteLine("Ce tip de reducere doriti sa adaugati produsului?");
             Console.WriteLine("1. Oferta 2 + 1 gratis");
@@ -344,6 +355,7 @@ public class Magazin
                     break;
 
                 case "4":
+                    running = false;
                     // exit
                     break;
             }
@@ -372,11 +384,14 @@ public class Magazin
                 Console.WriteLine($"Produsul {produs.Name}, ID: {produs.ID} are stoc redus: {produs.Stock} bucati ramase");
             }
         }
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey();
     }
 
     public void ManageOrders(Admin admin)
     {
-        while (true)
+        bool running = true;
+        while (running)
         {
             Console.WriteLine("Ce actiune doriti sa aplicati asupra comenzilor?");
             Console.WriteLine("1. Vizualizare");
@@ -398,6 +413,7 @@ public class Magazin
                     break;
 
                 case "2":
+                    bool localRunning = true;
                     string IdToSearch;
                     Comanda? OrderToFind = null;
                     while (true)
@@ -428,7 +444,7 @@ public class Magazin
                     {
                         Console.WriteLine("Aceasta comanda nu mai poate fi modificata, deoarece a fost anulata");
                     }
-
+                    while (localRunning) { 
                     Console.WriteLine($"Statusul curent al comenzii este {OrderToFind.Status}");
                     Console.WriteLine("Ce status doriti sa ii dati?");
                     Console.WriteLine("1. Being processed");
@@ -436,34 +452,34 @@ public class Magazin
                     Console.WriteLine("3. Delivered");
                     Console.WriteLine("4. Niciunul - anulare");
                     var StatusInput = Console.ReadLine();
-                    switch (StatusInput)
-                    {
-                        case "1":
-                            if (OrderToFind.Status == OrderStatus.BeingProcessed)
-                                Console.WriteLine("Comanda are deja acest status!");
-                            else
-                                OrderToFind.UpdateStatus(admin, OrderStatus.BeingProcessed);
-                            break;
+                        switch (StatusInput)
+                        {
+                            case "1":
+                                if (OrderToFind.Status == OrderStatus.BeingProcessed)
+                                    Console.WriteLine("Comanda are deja acest status!");
+                                else
+                                    OrderToFind.UpdateStatus(admin, OrderStatus.BeingProcessed);
+                                break;
 
-                        case "2":
-                            if (OrderToFind.Status == OrderStatus.Sent)
-                                Console.WriteLine("Comanda are deja acest status!");
-                            else
-                                OrderToFind.UpdateStatus(admin, OrderStatus.Sent);
-                            break;
-                        case "3":
-                            if (OrderToFind.Status == OrderStatus.Delivered)
-                                Console.WriteLine("Comanda are deja acest status!");
-                            else
-                            {
-                                OrderToFind.UpdateStatus(admin, OrderStatus.Delivered);
-                                OrderToFind.SetDeliveryDate();
-                            }
-                            break;
-                        case "4":
-                            // exit
-                            break;
-
+                            case "2":
+                                if (OrderToFind.Status == OrderStatus.Sent)
+                                    Console.WriteLine("Comanda are deja acest status!");
+                                else
+                                    OrderToFind.UpdateStatus(admin, OrderStatus.Sent);
+                                break;
+                            case "3":
+                                if (OrderToFind.Status == OrderStatus.Delivered)
+                                    Console.WriteLine("Comanda are deja acest status!");
+                                else
+                                {
+                                    OrderToFind.UpdateStatus(admin, OrderStatus.Delivered);
+                                    OrderToFind.SetDeliveryDate();
+                                }
+                                break;
+                            case "4":
+                                // exit
+                                break;
+                        }
                     }
                 break;
             }
