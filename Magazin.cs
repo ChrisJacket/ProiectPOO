@@ -415,26 +415,26 @@ public class Magazin
     {
         Console.WriteLine("Ce produs doriti sa adaugati la cos?");
         string NumeProd = Console.ReadLine();
-        foreach(Produs prod in StocMagazin)
+
+        foreach (Produs prod in StocMagazin)
         {
             if (prod.Name.Equals(NumeProd))
             {
-                client.ShoppingCart.Add(prod, 1);
-                break;
+                Console.WriteLine("Doriti sa adaugati produsul de mai multe ori la cos?");
+                string mProd = Console.ReadLine();
+                if (mProd.ToLower().Equals("da"))
+                {
+                    Console.WriteLine("De cate ori adaugati produsul la cos?");
+                    int.TryParse(Console.ReadLine(), out int nrProd);
+                    client.ShoppingCart.Add(prod, nrProd);
+                }
+                else
+                    client.ShoppingCart.Add(prod, 1);
             }
-        }
-        Console.WriteLine("Doriti sa adaugati produsul de mai multe ori la cos?");
-        string mProd = Console.ReadLine();
-        if (mProd.Equals("da"))
-        {
-            Console.WriteLine("De cate ori adaugati produsul la cos?");
-            string nrProd = Console.ReadLine();
-            int nr = int.Parse(nrProd);
-            client.ShoppingCart.Add(produs, nr);
-        }
-    }   
-    // AddToCart();
 
+        }
+    }
+    // AddToCart();
 
     public void EditCart(Client client)
     {
@@ -477,18 +477,18 @@ public class Magazin
 
     public void FinalizeOrder(Client client)
     {
-        var deliveryAddress = new DeliveryAddress();
+        var shippingAddress = new ShippingAddress();
         Console.WriteLine("Introduceti Adressa:");
-        DeliveryAddress.Address = Console.ReadLine();
+        shippingAddress.Address = Console.ReadLine();
         Console.WriteLine("Introduceti codul postal:");
-        DeliveryAddress.PostCode = Console.ReadLine();
+        shippingAddress.Postcode = Console.ReadLine();
         Console.WriteLine("Introduceti orasul:");
-        DeliveryAddress.City = Console.ReadLine();
+        shippingAddress.City = Console.ReadLine();
         Console.WriteLine("Introduceti tara:");
-        DeliveryAddress.Country = Console.ReadLine();
+        shippingAddress.Country = Console.ReadLine();
         
 
-        AddOrder(client.ShoppingCart, client, OrderStatus.BeingProcessed, DeliveryAddress);
+        AddOrder(client.ShoppingCart, client, OrderStatus.BeingProcessed, shippingAddress);
     }
     // FinalizeOrder();
     //
@@ -506,7 +506,7 @@ public class Magazin
         }
         if(ComenziClient.Count == 1)
         {
-            ComenziClient[0].OrderStatus = OrderStatus.Cancelled;
+            ComenziClient[0].CancelOrder(client);
         }
         else
         {
@@ -514,7 +514,7 @@ public class Magazin
             int i=1;
             foreach(Comanda com in ComenziClient)
             {
-                if(com.Status != Status.Cancelled)
+                if(com.Status != OrderStatus.Canceled)
                 {
                     Console.WriteLine($"{i}. {com.ID}");
                     i++;
@@ -525,7 +525,7 @@ public class Magazin
     // CancelOrder();
 
 
-    public void AddToWishlist(Client client, Produs produs)
+    public void AddToWishlist(Client client)
     {
         Console.WriteLine("Ce produs doriti sa adaugati la Wishlist?");
         string NumeProd = Console.ReadLine();
@@ -533,13 +533,13 @@ public class Magazin
         {
             if (prod.Name.Equals(NumeProd))
             {
-                if (client.Wishlist.Contains(produs))
+                if (client.Wishlist.Contains(prod))
                 {
                     Console.WriteLine("Produsul este deja in wishlist!");
                 }
                 else
                 {
-                    client.Wishlist.Add(produs);
+                    client.Wishlist.Add(prod);
                     Console.WriteLine("Produsul a fost adaugat in wishlist!");
                 }
     }

@@ -70,7 +70,7 @@ internal class Program
                     else if (LogInUser.UserType == UserTypes.Client)
                     {
                         Client currentUser = (Client)LogInUser;
-                        currentUser.RunMenu();
+                        currentUser.RunMenu(currentUser, magazin);
                         break;
                     }
                 }

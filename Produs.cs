@@ -23,7 +23,7 @@ public class Produs
     public string? Description { get; private set; }
     public double Price { get; private set; }
     public int Stock { get; private set; }
-    private int? Rating { get; set; }
+    private List<int> Rating { get; set; }
     public ProductCategory? Category { get; private set; }
     public Dictionary<DiscountTypes, bool> ThisProductsDiscounts { get; private set; }
     public int? PercentageDiscount { get; private set; }
@@ -45,6 +45,10 @@ public class Produs
         };
     }
 
+    public void AddRating(int rating)
+    {
+        Rating.Add(rating);
+    }
     public void AddStock(Admin admin, int StockToBeAdded)
     {
         Stock += StockToBeAdded;

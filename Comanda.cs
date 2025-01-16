@@ -50,6 +50,11 @@ public class Comanda
         Status = NewStatus;
     }
 
+    public void CancelOrder(Client client)
+    {
+        Status = OrderStatus.Canceled;
+    }
+
     private double CalculateOrderPrice()
     {
         double OrderPrice = 0, ValueToAdd;

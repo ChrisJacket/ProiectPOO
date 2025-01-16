@@ -49,7 +49,7 @@ public class Client : User
         Wishlist = new List<Produs>();
     }
 
-    public void RunMenu()
+    public void RunMenu(Client ThisClient, Magazin magazin)
     {
         bool running = true;
         while (running)
@@ -72,39 +72,39 @@ public class Client : User
             switch (input)
             {
                 case "1":
-                    ViewProducts(this.client);
+                    magazin.ViewProducts(ThisClient);
                     break;
 
                 case "2":
-                    AddToCart(this.client);
+                    magazin.AddToCart(ThisClient);
                     break;
 
                 case "3":
-                    EditCart(this.client);
+                    magazin.EditCart(ThisClient);
                     break;
 
                 case "4":
-                    FinalizeOrder(this.client);
+                    magazin.FinalizeOrder(ThisClient);
                     break;
 
                 case "5":
-                    CancelOrder(this.client);
+                    magazin.CancelOrder(ThisClient);
                     break;
 
                 case "6":
-                    AddToWishlist(this.client);
+                    magazin.AddToWishlist(ThisClient);
                     break;
 
                 case "7":
-                    ViewWishlist(this.client);
+                    magazin.ViewWishlist(ThisClient);
                     break;
 
                 case "8":
-                    RemoveFromWishlist(this.client);
+                    magazin.RemoveFromWishlist(ThisClient);
                     break;
 
                 case "9":
-                    AddProductRating(this.client);
+                    magazin.RateProduct(ThisClient);
                     break;
 
                 case "10":
