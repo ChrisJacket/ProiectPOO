@@ -10,26 +10,26 @@ public class Magazin
 
     public Magazin()
     {
-        Comenzi = new List<Comanda>();
-        StocMagazin = new List<Produs>();
-        Users = new List<User>();
+        Comenzi = LoadOrdersFromFile();
+        StocMagazin = LoadProductsFromFile();
+        Users = LoadUsersFromFile();
     }
     
-    public void LoadUsersFromFile()
+    public List<User> LoadUsersFromFile()
     {
         string filePath = "users.txt";
-    
+        List<User> aux_users = new List<User>();
         // Verificăm dacă fișierul există
         if (!File.Exists(filePath))
         {
             Console.WriteLine("Fișierul cu utilizatori nu a fost găsit.");
-            return;
+            return null;
         }
 
         try
         {
             var lines = File.ReadAllLines(filePath);
-
+            
             foreach (var line in lines)
             {
                 var userData = line.Split(',');
@@ -59,7 +59,7 @@ public class Magazin
                         }
 
                         // Adăugăm utilizatorul în lista de utilizatori
-                        Users.Add(user);
+                        aux_users.Add(user);
                     }
                     else
                     {
@@ -74,14 +74,12 @@ public class Magazin
         {
             Console.WriteLine($"Eroare la citirea fișierului de utilizatori: {ex.Message}");
         }
+        return aux_users;
     }
-
-    
-    
     
     public List<Comanda> LoadOrdersFromFile()
     {
-        List<Comanda> orders = new List<Comanda>();
+        List<Comanda> OrdersToBeLoaded = new List<Comanda>();
 
         try
         {
@@ -140,7 +138,7 @@ public class Magazin
 
                 // Creăm comanda
                 Comanda order = new Comanda(productsOrdered, orderId, new Client(customerName, customerName, "password", customerEmail), orderStatus, address);
-                orders.Add(order);
+                OrdersToBeLoaded.Add(order);
             }
         }
         catch (Exception ex)
@@ -148,13 +146,13 @@ public class Magazin
             Console.WriteLine($"Eroare la citirea fișierului de comenzi: {ex.Message}");
         }
 
-        return orders;
+        return OrdersToBeLoaded;
     }
     public List<Produs> LoadProductsFromFile()
     {
         string filePath = "products.txt";
         List<Produs> products = new List<Produs>();
-
+        
         try
         {
             if (File.Exists(filePath))
@@ -166,24 +164,25 @@ public class Magazin
                     string id = fields[0];
                     string name = fields[1];
                     double price = double.Parse(fields[2]);
-                    int stock = int.Parse(fields[3]);
-                    ProductCategory category = Enum.Parse<ProductCategory>(fields[4]);
-                
+                    string description = fields[3];
+                    int stock = int.Parse(fields[4]);
+                    ProductCategory category = Enum.Parse<ProductCategory>(fields[5]);
+
                     Produs product = new Produs(id, name, price, stock, category);
 
                     // Aplica reducerile
-                    if (!string.IsNullOrEmpty(fields[5]))
+                    if (!string.IsNullOrEmpty(fields[6]))
                     {
-                        var discounts = fields[5].Split(',');
+                        var discounts = fields[6].Split(',');
                         foreach (var discount in discounts)
                         {
                             DiscountTypes discountType = Enum.Parse<DiscountTypes>(discount);
                             int discountValue = 0;
-                        
+
                             if (discountType == DiscountTypes.Percentage)
-                                discountValue = int.Parse(fields[6]);
-                            else if (discountType == DiscountTypes.Constant)
                                 discountValue = int.Parse(fields[7]);
+                            else if (discountType == DiscountTypes.Constant)
+                                discountValue = int.Parse(fields[8]);
 
                             product.AddDiscount(discountType, discountValue);
                         }
@@ -204,7 +203,6 @@ public class Magazin
 
         return products;
     }
-
 
     public void SignUpClient(Client ClientNou)
     {
@@ -423,7 +421,7 @@ public class Magazin
 
         if (ProductToFind == null)
         {
-            Console.WriteLine("Produsul cu ID-ul specificat nu a fost gasit.");
+            Console.WriteLine("Produsul cu ID-ul sau numele specificat nu a fost gasit.");
             return null;
         }
 
@@ -493,6 +491,8 @@ public class Magazin
     private void UpdateProductStock(Admin admin)
     {
         Produs? ProductToUpdate = FindProduct();
+        if (ProductToUpdate == null)
+            return;
 
         Console.WriteLine("Introduceti noua valoarea a stocului produsului:");
         int.TryParse(Console.ReadLine(), out int NewStock);
@@ -541,7 +541,6 @@ public class Magazin
             }
         }
     }
-
     private bool ProductsWithLowStockExist()
     {
         bool LowStockProductsExist = false;
@@ -663,73 +662,76 @@ public class Magazin
                     }
                 break;
             }
-
-
         }
     }
     
     //Adăugare clienti dacă nu sunt deja în fișier
-    private void AddUserToFile(User user)
+    public void SaveUsersToFile()
     {
-        string filePath = "users.txt";
-
-        try
+        string filePath = "./users.txt";
+        foreach (User user in Users)
         {
-            using (StreamWriter sw = new StreamWriter(filePath, true))
+            try
             {
-                // Formatează linia pentru fișier
-                string userLine =
-                    $"{user.LastName},{user.FirstName},{user.Password},{user.EmailAddress},{user.UserType}";
-                sw.WriteLine(userLine);
+                using (StreamWriter sw = new StreamWriter(filePath, true))
+                {
+                    // Formatează linia pentru fișier
+                    string userLine =
+                        $"{user.LastName},{user.FirstName},{user.Password},{user.EmailAddress},{user.UserType}";
+                    sw.WriteLine(userLine);
+                }
             }
-
-            Console.WriteLine("Utilizatorul a fost adăugat în fișier.");
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Eroare la scrierea în fișier: {ex.Message}");
+            }
+            
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Eroare la scrierea în fișier: {ex.Message}");
-        }
+        Console.WriteLine("Utilizatorii a fost adaugati in fisier.");
     }
-    public void SaveOrderToFile(Comanda order)
+    public void SaveOrdersToFile()
     {
-        string filePath = "orders.txt";
-
-        try
+        string filePath = "./orders.txt";
+        File.WriteAllText(filePath, string.Empty);
+        foreach (Comanda comanda in Comenzi)
         {
-            // Construim manual linia pentru fișier
-            string products = string.Join(";", order.ProductsOrdered.Select(p => $"{p.Key.ID}:{p.Value}"));
-            string address = $"{order.DeliveryAddress.City},{order.DeliveryAddress.Country},{order.DeliveryAddress.Postcode},{order.DeliveryAddress.Address}";
-        
-            string line = $"{order.ID}|{order.PlacementDate}|{order.Recipient.EmailAddress}|{order.Status}|{address}|{order.OrderPrice}|{products}";
+            try
+            {
+                // Construim manual linia pentru fișier
+                string products = string.Join(";", comanda.ProductsOrdered.Select(p => $"{p.Key.ID}:{p.Value}"));
+                string address = $"{comanda.DeliveryAddress.City},{comanda.DeliveryAddress.Country},{comanda.DeliveryAddress.Postcode},{comanda.DeliveryAddress.Address}";
 
-            // Adăugăm linia în fișier
-            File.AppendAllText(filePath, line + Environment.NewLine);
-            Console.WriteLine("Comanda a fost salvată cu succes în fișier.");
+                string line = $"{comanda.ID}|{comanda.PlacementDate}|{comanda.Recipient.EmailAddress}|{comanda.Status}|{address}|{comanda.OrderPrice}|{products}";
+
+                // Adăugăm linia în fișier
+                File.AppendAllText(filePath, line + Environment.NewLine);
+                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Eroare la salvarea comenzii: {ex.Message}");
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Eroare la salvarea comenzii: {ex.Message}");
-        }
+        Console.WriteLine("Comenzile au fost salvate cu succes in fisier.");
     }
-
-    
-    public void SaveProductToFile(Produs product)
+    public void SaveProductsToFile()
     {
-        string filePath = "products.txt";
-
-        try
+        string filePath = "./products.txt";
+        File.WriteAllText(filePath, string.Empty);
+        foreach (Produs produs in StocMagazin)
         {
-            // Scrie produsul în format text în fișier
-            File.AppendAllText(filePath, product.ToFileFormat() + Environment.NewLine);
-            Console.WriteLine("Produsul a fost salvat cu succes în fișier.");
+            try
+            {
+                // Scrie produsul în format text în fișier
+                File.AppendAllText(filePath, produs.ToFileFormat() + Environment.NewLine);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Eroare la salvarea produsului: {ex.Message}");
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Eroare la salvarea produsului: {ex.Message}");
-        }
+        Console.WriteLine("Produsele au fost salvate cu succes in fisier.");
     }
-
-
 
     public void CreateSalesReport(Admin admin)
     {

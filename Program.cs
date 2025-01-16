@@ -6,16 +6,17 @@ internal class Program
     static void Main(string[] args)
     {
         Magazin magazin = new Magazin();
-        
+        magazin.Users.Add(new Admin("ion", "palasca", "admin", "admin"));
         StartApp(magazin);
     }
 
     public static void StartApp(Magazin magazin)
     {
         // rutina pentru incarcarea datelor magazinului
-        //magazin.LoadUsersFromFile();
-        //magazin.LoadProductsFromFile();
-        //magazin.LoadOrdersFromFile();
+        magazin.LoadUsersFromFile();
+        magazin.LoadProductsFromFile();
+        magazin.LoadOrdersFromFile();
+
         bool ProgramRunning = true;
         while (ProgramRunning)
         {
@@ -26,20 +27,24 @@ internal class Program
                 Console.WriteLine("Bun venit! Aveti deja cont sau doriti sa creati unul?");
                 Console.WriteLine("1. Autentificare");
                 Console.WriteLine("2. Cont nou");
+                Console.WriteLine("0. Iesire");
                 var input = Console.ReadLine();
-                if (input == "1")
-                    break;
 
-                else if (input == "2")
+                switch (input)
                 {
-                    SignUp(magazin);
-                    break;
-                }
+                    case "1":
+                        LogInRunning = false;
+                        break;
+                    case "2":
+                        SignUp(magazin);
+                        break;
+                    case "0":
+                        magazin.SaveUsersToFile();
+                        magazin.SaveProductsToFile();
+                        magazin.SaveOrdersToFile();
+                        Environment.Exit(0);
+                        break;
 
-                else
-                {
-                    Console.WriteLine("Alegere invalida!");
-                    Thread.Sleep(1000);
                 }
             }
             while (true)
@@ -113,9 +118,9 @@ internal class Program
         if (ProposedEmail == null)
             return false;
 
-        foreach(Client client in magazin.Users)
+        foreach(User user in magazin.Users)
         {
-            if (client.EmailAddress == ProposedEmail)
+            if (user.EmailAddress == ProposedEmail)
             {
                 return false;
             }
