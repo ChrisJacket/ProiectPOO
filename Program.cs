@@ -10,7 +10,7 @@ internal class Program
         StartApp(magazin);
     }
 
-    public static async void StartApp(Magazin magazin)
+    public static void StartApp(Magazin magazin)
     {
         // rutina pentru incarcarea datelor magazinului
         //magazin.LoadUsersFromFile();
@@ -39,7 +39,7 @@ internal class Program
                 else
                 {
                     Console.WriteLine("Alegere invalida!");
-                    await Task.Delay(1000);
+                    Thread.Sleep(1000);
                 }
             }
             while (true)
@@ -76,7 +76,7 @@ internal class Program
         }
     }
 
-    public static async void SignUp(Magazin magazin)
+    public static void SignUp(Magazin magazin)
     {
         string SignUpLastName, SignUpFirstName, SignUpEmail, SignUpPassword;
         bool FailedAttempt = false;
@@ -85,7 +85,7 @@ internal class Program
             if (FailedAttempt)
             {
                 Console.WriteLine("A aparut o eroare. Asigurati-va ca nu lasati niciun camp gol si incercati din nou");
-                await Task.Delay(2000);
+                Thread.Sleep(2000);
                 Console.Clear();
             }
 
