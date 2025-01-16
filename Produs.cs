@@ -19,10 +19,10 @@ public enum ProductCategory
 public class Produs
 {
     public string ID { get; private set; }
-    private string Name { get; set; }
-    private string? Description { get; set; }
+    public string Name { get; private set; }
+    public string? Description { get; private set; }
     public double Price { get; private set; }
-    private int Stock { get; set; }
+    public int Stock { get; private set; }
     private int? Rating { get; set; }
     public ProductCategory? Category { get; private set; }
     public Dictionary<DiscountTypes, bool> ThisProductsDiscounts { get; private set; }
@@ -43,6 +43,33 @@ public class Produs
             {DiscountTypes.Percentage, false},
             {DiscountTypes.Constant, false}
         };
+    }
+
+    public void AddStock(Admin admin, int StockToBeAdded)
+    {
+        Stock += StockToBeAdded;
+    }
+
+    public void ModifyStock(Admin admin, int NewStock)
+    {
+        Stock = NewStock;
+    }
+
+    public void ModifyName(Admin admin, string NewName)
+    {
+        if(NewName != null)
+            Name = NewName;
+    }
+
+    public void ModifyPrice(Admin admin, double NewPrice)
+    {
+        Price = NewPrice;
+    }
+
+    public void ModifyDescription(Admin admin, string NewDescription)
+    {
+        if(NewDescription != null)
+            Description = NewDescription;
     }
 
     public void AddDiscount(DiscountTypes discountType, int DiscountSpecs)

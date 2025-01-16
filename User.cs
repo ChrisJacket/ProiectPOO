@@ -116,7 +116,7 @@ public class Admin : User
     {
     }
 
-    public void RunMenu()
+    public void RunMenu(Admin ThisAdmin, Magazin magazin)
     {
         bool running = true;
         while (running)
@@ -133,8 +133,8 @@ public class Admin : User
             switch (input)
             {
                 case "1":
-                    // ManageStore();
-                    // 
+                    magazin.ManageStore(ThisAdmin);
+                    
                     // functie multifunctionala pentru adaugat, editat si sters produse
                     // inclusiv administrat stocurile
                     // produsele cu stoc redus ar trebui semnalate cumva

@@ -53,7 +53,7 @@ internal class Program
                 if (LogInUser.UserType == UserTypes.Admin)
                 {
                     Admin currentUser = (Admin)LogInUser;
-                    currentUser.RunMenu();
+                    currentUser.RunMenu(currentUser, magazin);
                 }
                 else if (LogInUser.UserType == UserTypes.Client)
                 {
@@ -92,10 +92,28 @@ internal class Program
             Console.WriteLine("Introduceti parola dorita. Asigurati-va ca este una sigura!");
             SignUpPassword = Console.ReadLine();
 
+            if (!EmailAvailable(magazin, SignUpEmail))
+                Console.WriteLine("Deja exista un cont cu acest email!");
+
             FailedAttempt = true;
-        } while (SignUpLastName != null && SignUpFirstName != null && SignUpEmail != null && SignUpPassword != null);
+        } while (SignUpLastName == null || SignUpFirstName == null || SignUpEmail == null || SignUpPassword == null || EmailAvailable(magazin, SignUpEmail) == false);
 
         Client ClientNou = new Client(SignUpFirstName, SignUpLastName, SignUpPassword, SignUpEmail);
         magazin.SignUpClient(ClientNou);
+    }
+
+    private static bool EmailAvailable(Magazin magazin, string ProposedEmail)
+    {
+        if (ProposedEmail == null)
+            return false;
+
+        foreach(Client client in magazin.Users)
+        {
+            if (client.EmailAddress == ProposedEmail)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }
