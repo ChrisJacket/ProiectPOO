@@ -1,4 +1,11 @@
-﻿namespace ProiectPOO;
+﻿using Microsoft.VisualBasic;
+using System.Linq;
+
+
+using System.Xml.Schema;
+using System.Security.Cryptography.X509Certificates;
+
+namespace ProiectPOO;
 public enum UserTypes
 {
     Client,
@@ -21,6 +28,7 @@ public abstract class User
         UserType = userType;
         
     }
+
     
     public bool VerifyUserCredentials(string emailToVerify, string passwordToVerify)
     {
@@ -55,59 +63,64 @@ public class Client : User
             Console.WriteLine("5. Anuleaza o comanda");
             Console.WriteLine("6. Adauga in wishlist");
             Console.WriteLine("7. Afiseaza wishlist-ul");
-            Console.WriteLine("8. Adauga rating unui produs");
-            Console.WriteLine("9. Iesi");
+            Console.WriteLine("8. Sterge din Wishlist");
+            Console.WriteLine("9. Adauga rating unui produs");
+            Console.WriteLine("10. Iesi");
             Console.Write("Alegeti optiunea: ");
             var input = Console.ReadLine();
 
             switch (input)
             {
                 case "1":
-                    // ViewProducts();
-                    //
-                    // listeaza toate produsele, cu un contor care le numeroteaza in afisaj
-                    // pentru a le putea selecta
+                    ViewProducts(this.client);
                     break;
+
                 case "2":
-                    // AddToCart();
+                    AddToCart(this.client);
                     break;
+
                 case "3":
-                    // EditCart();
+                    EditCart(this.client);
                     break;
+
                 case "4":
-                    // FinalizeOrder();
-                    //
-                    // Creaza o comanda cu toate produsele din cos
+                    FinalizeOrder(this.client);
                     break;
+
                 case "5":
-                    // CancelOrder();
+                    CancelOrder(this.client);
                     break;
+
                 case "6":
-                    // AddToWishlist();
+                    AddToWishlist(this.client);
                     break;
+
                 case "7":
-                    // ViewWishlist();
-                    //
-                    // din wishlist produsele trebuie sa se poata adauga in cart
+                    ViewWishlist(this.client);
                     break;
+
                 case "8":
-                    // RateProduct();
-                    //
-                    // valabil doar pentru produsele care au fost in comenzi asociate clientului
-                    // poate le listam si cerem alegerea pentru ce produs sa fie rate-uit?
+                    RemoveFromWishlist(this.client);
                     break;
+
                 case "9":
+                    AddProductRating(this.client);
+                    break;
+
+                case "10":
                     // Exit
                     running = false;
                     break;
+
                 default:
                     Console.WriteLine("Optiune invalida. Incercati din nou.");
                     break;
             }
         }
     }
-
 }
+
+
 
 public class Admin : User
 {

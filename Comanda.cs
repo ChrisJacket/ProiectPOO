@@ -23,6 +23,7 @@ public class Comanda
     public DateOnly PlacementDate { get; private set; }
     public Client Recipient { get; private set; }
     public  OrderStatus Status { get; private set; }
+
     public ShippingAddress DeliveryAddress { get; private set; }
     private DateOnly DeliveryDate { get; set; }
     public double OrderPrice { get; private set; }
