@@ -37,7 +37,7 @@ public class Comanda
         OrderPrice = CalculateOrderPrice();
     }
 
-    public double CalculateOrderPrice()
+    private double CalculateOrderPrice()
     {
         double OrderPrice = 0, ValueToAdd;
         foreach(var ProductAmountPair in ProductsOrdered)

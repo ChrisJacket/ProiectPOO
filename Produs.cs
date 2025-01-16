@@ -28,7 +28,7 @@ public class Produs
     public Dictionary<DiscountTypes, bool> ThisProductsDiscounts { get; private set; }
     public int? PercentageDiscount { get; private set; }
     public int? ConstantDiscount { get; private set; }
-    public Produs(string id, string name, double price, int stock, ProductCategory category)
+    public Produs(string id, string name, double price, int stock, ProductCategory? category)
     {
         ID = id;
         Name = name;

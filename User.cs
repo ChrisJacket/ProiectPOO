@@ -32,11 +32,13 @@ public abstract class User
 public class Client : User
 {
     public Dictionary<Produs, int> ShoppingCart { get; protected set; }
+    public List<Produs> Wishlist { get; protected set; }
 
     public Client(string firstName, string lastName, string password, string emailAddress)
         : base(firstName, lastName, password, emailAddress, UserTypes.Client)
     {
         ShoppingCart = new Dictionary<Produs, int>();
+        Wishlist = new List<Produs>();
     }
 
     public void RunMenu()

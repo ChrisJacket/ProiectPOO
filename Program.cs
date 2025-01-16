@@ -14,7 +14,28 @@ internal class Program
         magazin.LoadProductsFromFile();
         magazin.LoadOrdersFromFile();
 
-        Console.WriteLine("Bun venit! Va rugam sa va autentificati");
+        bool running = true;
+        while (running)
+        {
+            Console.WriteLine("Bun venit! Aveti deja cont sau doriti sa creati unul?");
+            Console.WriteLine("1. Autentificare");
+            Console.WriteLine("2. Cont nou");
+            var input = Console.ReadLine();
+            if (input == "1")
+                break;
+
+            else if (input == "2")
+            {
+                SignUp(magazin);
+                break;
+            }
+
+            else
+            {
+                Console.WriteLine("Alegere invalida!");
+                await Task.Delay(1000);
+            }
+        }
         while (true)
         {
             User LogInUser = magazin.AuthenticateUser();
@@ -48,5 +69,33 @@ internal class Program
                 Console.Clear();
             }
         }
+    }
+
+    public static async void SignUp(Magazin magazin)
+    {
+        string SignUpLastName, SignUpFirstName, SignUpEmail, SignUpPassword;
+        bool FailedAttempt = false;
+        do
+        {
+            if (FailedAttempt)
+            {
+                Console.WriteLine("A aparut o eroare. Asigurati-va ca nu lasati niciun camp gol si incercati din nou");
+                await Task.Delay(2000);
+            }
+
+            Console.WriteLine("Introduceti-va numele de familie:");
+            SignUpLastName = Console.ReadLine();
+            Console.WriteLine("Introduceti-va prenumele");
+            SignUpFirstName = Console.ReadLine();
+            Console.WriteLine("Introduceti-va adresa de email:");
+            SignUpEmail = Console.ReadLine();
+            Console.WriteLine("Introduceti parola dorita. Asigurati-va ca este una sigura!");
+            SignUpPassword = Console.ReadLine();
+
+            FailedAttempt = true;
+        } while (SignUpLastName != null && SignUpFirstName != null && SignUpEmail != null && SignUpPassword != null);
+
+        Client ClientNou = new Client(SignUpFirstName, SignUpLastName, SignUpPassword, SignUpEmail);
+        magazin.SignUpClient(ClientNou);
     }
 }

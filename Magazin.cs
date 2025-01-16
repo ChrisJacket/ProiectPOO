@@ -26,6 +26,11 @@ public class Magazin
         throw new NotImplementedException();
     }
 
+    public void SignUpClient(Client ClientNou)
+    {
+        Users.Add(ClientNou);
+    }
+
     private string GenerateNextOrderId()
     {
         Random Randomizer = new Random();
@@ -72,7 +77,7 @@ public class Magazin
             if(comanda.ID == comanda_aux.ID) return true;
         return false;
     }
-    public void AddProduct(string productName, double price, int stock, ProductCategory productCategory)
+    public void AddProduct(string productName, double price, int stock, ProductCategory? productCategory)
     {
         Produs NewProduct = new Produs(GenerateNextProductId(), productName, price, stock, productCategory);
         if (ProductAlreadyExists(NewProduct))
