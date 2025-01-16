@@ -1,4 +1,5 @@
 ﻿namespace ProiectPOO;
+
 internal class Program
 {
     static void Main(string[] args)
@@ -40,7 +41,6 @@ internal class Program
                     currentUser.RunMenu();
                 }
             }
-
             else
             {
                 Console.WriteLine("Autentificare esuata. Incercati din nou.");

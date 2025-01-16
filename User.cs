@@ -8,7 +8,7 @@ public abstract class User
 {
     public string FirstName { get; protected set; }
     public string LastName { get; protected set; }
-    protected string Password { get; set; }
+    protected internal string Password { get; set; }
     public string EmailAddress { get; protected set; }
     public UserTypes UserType { get; protected set; }
 
