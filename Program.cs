@@ -6,9 +6,7 @@ internal class Program
     static void Main(string[] args)
     {
         Magazin magazin = new Magazin();
-        magazin.Users.Add(new Client("Ion", "Popescu", "parola", "ionpopescu@gmail.com"));
-        magazin.Users.Add(new Admin("Gica", "Petrescu", "admin", "gicapetrescu@gmail.com"));
-
+        
         StartApp(magazin);
     }
 
