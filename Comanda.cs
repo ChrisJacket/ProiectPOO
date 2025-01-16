@@ -17,11 +17,11 @@ public struct ShippingAddress
 }
 public class Comanda
 {
-    private Dictionary<Produs, int> ProductsOrdered;
+    public Dictionary<Produs, int> ProductsOrdered;
     public string ID { get; private set; }
     public DateOnly PlacementDate { get; private set; }
-    private Client Recipient { get; set; }
-    private OrderStatus Status { get; set; }
+    public Client Recipient { get; private set; }
+    public OrderStatus Status { get; private set; }
     public ShippingAddress DeliveryAddress { get; private set; }
     private DateOnly DeliveryDate { get; set; }
     private double OrderPrice { get; set; }

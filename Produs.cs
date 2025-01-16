@@ -23,7 +23,7 @@ public class Produs
     private string? Description { get; set; }
     public double Price { get; private set; }
     private int Stock { get; set; }
-    private int? Rating { get; set; }
+    public int Rating { get; private set; }
     public ProductCategory? Category { get; private set; }
     public Dictionary<DiscountTypes, bool> ThisProductsDiscounts { get; private set; }
     public int? PercentageDiscount { get; private set; }
