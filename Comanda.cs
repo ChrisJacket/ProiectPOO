@@ -17,14 +17,16 @@ public struct ShippingAddress
 }
 public class Comanda
 {
-    internal Dictionary<Produs, int> ProductsOrdered;
+
+    public Dictionary<Produs, int> ProductsOrdered { get; private set; }
     public string ID { get; private set; }
     public DateOnly PlacementDate { get; private set; }
-    internal Client Recipient { get; set; }
-    internal OrderStatus Status { get; set; }
-    internal ShippingAddress DeliveryAddress { get; set; }
+    public Client Recipient { get; private set; }
+    public  OrderStatus Status { get; private set; }
+    private ShippingAddress DeliveryAddress { get; set; }
     private DateOnly DeliveryDate { get; set; }
-    internal double OrderPrice { get; set; }
+    public double OrderPrice { get; private set; }
+
 
     public Comanda(Dictionary<Produs, int> productsOrdered, string iD, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
     {
@@ -37,7 +39,17 @@ public class Comanda
         OrderPrice = CalculateOrderPrice();
     }
 
-    public double CalculateOrderPrice()
+    public void SetDeliveryDate()
+    {
+        DeliveryDate = DateOnly.FromDateTime(DateTime.Now);
+    }
+
+    public void UpdateStatus(Admin admin, OrderStatus NewStatus)
+    {
+        Status = NewStatus;
+    }
+
+    private double CalculateOrderPrice()
     {
         double OrderPrice = 0, ValueToAdd;
         foreach(var ProductAmountPair in ProductsOrdered)
