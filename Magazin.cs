@@ -15,7 +15,7 @@ public class Magazin
 
     public List<User> LoadUsersFromFile()
     {
-        throw new NotImplementedException();      
+        throw new NotImplementedException();
     }
     public List<Comanda> LoadOrdersFromFile()
     {
@@ -24,6 +24,11 @@ public class Magazin
     public List<Produs> LoadProductsFromFile()
     {
         throw new NotImplementedException();
+    }
+
+    public void SignUpClient(Client ClientNou)
+    {
+        Users.Add(ClientNou);
     }
 
     private string GenerateNextOrderId()
@@ -61,30 +66,17 @@ public class Magazin
     public void AddOrder(Dictionary<Produs, int> productsOrdered, Client recipient, OrderStatus status, ShippingAddress deliveryAddress)
     {
         Comanda NewOrder = new Comanda(productsOrdered, GenerateNextOrderId(), recipient, OrderStatus.BeingProcessed, deliveryAddress);
-        if (OrderAlreadyExists(NewOrder))
-            Console.WriteLine("Order has already been added!");
-        else 
-            Comenzi.Add(NewOrder);
+        Comenzi.Add(NewOrder);
     }
-    private bool OrderAlreadyExists(Comanda comanda)
-    {
-        foreach(Comanda comanda_aux in Comenzi)
-            if(comanda.ID == comanda_aux.ID) return true;
-        return false;
-    }
-    public void AddProduct(string productName, double price, int stock, ProductCategory productCategory)
-    {
-        Produs NewProduct = new Produs(GenerateNextProductId(), productName, price, stock, productCategory);
-        if (ProductAlreadyExists(NewProduct))
-            Console.WriteLine("Product has already been added!");
-        else
-            StocMagazin.Add(NewProduct);
-    }
-    private bool ProductAlreadyExists(Produs produs)
+    private bool ProductAlreadyExists(Admin admin, Produs produs)
     {
         foreach (Produs produs_aux in StocMagazin)
         {
-            if (produs.ID == produs_aux.ID) return true;
+            if (produs.Name == produs_aux.Name)
+            {
+                produs_aux.AddStock(admin, produs.Stock);
+                return true;
+            }
             // aici poate putem face o chestie, daca produsul deja exista
             // astfel incat sa adauge stocul produsului nou la produsul care deja exista
         }
@@ -92,9 +84,9 @@ public class Magazin
     }
     public void EditOrder(Comanda comanda)
     {
-        foreach(Comanda comanda_aux in Comenzi)
+        foreach (Comanda comanda_aux in Comenzi)
         {
-            if(comanda_aux.ID == comanda.ID)
+            if (comanda_aux.ID == comanda.ID)
             {
                 // logica de modificare a comenzii
                 break;
@@ -132,7 +124,408 @@ public class Magazin
 
         // Verifica daca exista utilizatorul in lista de utilizatori
         // "=>" a se citi "cu proprietatea ca"
-        return Users.First(u => u.VerifyUserCredentials(email, parola));
+        
+        return Users.FirstOrDefault(u => u.VerifyUserCredentials(email, parola), null);
     }
 
+    public void ManageStore(Admin ThisAdmin)
+    {
+        bool running = true;
+        while (running)
+        {
+            Console.Clear();
+            Console.WriteLine("1. Adauga produs in magazin");
+            Console.WriteLine("2. Modifica produs");
+            Console.WriteLine("3. Sterge produs");
+            Console.WriteLine("4. Actualizeaza stocurile unui produs");
+            Console.WriteLine("5. Adauga discount unui produs");
+            if (ProductsWithLowStockExist() == true)
+                Console.WriteLine("6. Afiseaza produsele cu stoc scazut (IMPORTANT)");
+            Console.WriteLine("0. Iesire");
+
+            var input = Console.ReadLine();
+            switch (input)
+            {
+                case "1":
+                    AddProduct(ThisAdmin);
+                    break;
+
+                case "2":
+                    ModifyProduct(ThisAdmin);
+                    break;
+
+                case "3":
+                    DeleteProduct(ThisAdmin);
+                    break;
+
+                case "4":
+                    UpdateProductStock(ThisAdmin);
+                    break;
+
+                case "5":
+                    AddProductDiscount(ThisAdmin);
+                    break;
+
+                case "6":
+                    if (ProductsWithLowStockExist() == true)
+                        ShowProductsWithLowStock();
+                    else
+                        Console.WriteLine("There are no products with low stock!");
+                    break;
+                case "0":
+                    running = false;
+                    break;
+
+            }
+
+        }
+    }
+
+    private void AddProduct(Admin admin)
+    {
+        string ProposedProductName;
+        double ProposedProductPrice;
+        int ProposedProductInitialStock;
+        int ProposedProductCategory;
+        bool conversion1, conversion2;
+        while (true)
+        {
+            Console.WriteLine("Numele produsului:");
+            ProposedProductName = Console.ReadLine();
+
+            Console.WriteLine("Pretul produsului:");
+            conversion1 = double.TryParse(Console.ReadLine(), out ProposedProductPrice);
+
+            Console.WriteLine("Stocul initial al produsului:");
+            conversion2 = int.TryParse(Console.ReadLine(), out ProposedProductInitialStock);
+
+            Console.WriteLine("Categoria produsului:");
+            int.TryParse(Console.ReadLine(), out ProposedProductCategory);
+
+            if (!conversion1 || !conversion2)
+                Console.WriteLine("Una sau mai multe valori nu a putut fi citita corect. Incercati din nou.");
+            else if (ProposedProductName == null)
+                Console.WriteLine("Produsul trebuie sa aiba un nume!");
+            else
+                break;
+        }
+
+        Produs NewProduct = new Produs(GenerateNextProductId(), ProposedProductName, ProposedProductPrice, ProposedProductInitialStock, (ProductCategory)ProposedProductCategory);
+        if (ProductAlreadyExists(admin, NewProduct))
+        {
+            Console.WriteLine("Exista deja un produs cu acelasi nume! S-a adaugat stocul produsului de la intrare la produsul deja existent.");
+        }
+        else
+            StocMagazin.Add(NewProduct);
+    }
+
+    private Produs? FindProduct()
+    {
+        string StringToSearch;
+        Produs? ProductToFind = null;
+        while (true)
+        {
+            Console.WriteLine("ID-ul sau numele produsului cautat:");
+            StringToSearch = Console.ReadLine();
+
+            if (StringToSearch != null)
+                break;
+        }
+
+        foreach (Produs produs in StocMagazin)
+        {
+            if (produs.ID == StringToSearch || produs.Name == StringToSearch)
+            {
+                ProductToFind = produs;
+                break;
+            }
+        }
+
+        if (ProductToFind == null)
+        {
+            Console.WriteLine("Produsul cu ID-ul specificat nu a fost gasit.");
+            return null;
+        }
+
+        return ProductToFind;
+    }
+
+    private void ModifyProduct(Admin admin)
+    {
+
+        Produs? ProductToModify = FindProduct();
+        if (ProductToModify == null)
+            return;
+
+        bool running = true;
+        while (running)
+        {
+            Console.WriteLine("Ce doriti sa modificati la produs?");
+            Console.WriteLine("1. Numele");
+            Console.WriteLine("2. Pretul");
+            Console.WriteLine("3. Descrierea");
+            Console.WriteLine("4. Iesire");
+            var input = Console.ReadLine();
+
+            switch (input)
+            {
+                case "1":
+                    Console.WriteLine("Introduceti noul nume pentru produs:");
+                    string NewProductName = Console.ReadLine();
+                    ProductToModify.ModifyName(admin, NewProductName);
+                    break;
+
+                case "2":
+                    Console.WriteLine("Introduceti noul pret al produsului:");
+                    int.TryParse(Console.ReadLine(), out int NewProductPrice);
+                    ProductToModify.ModifyPrice(admin, NewProductPrice);
+                    break;
+
+                case "3":
+                    Console.WriteLine("Introduceti noua descriere a produsului:");
+                    string NewProductDescription = Console.ReadLine();
+                    ProductToModify.ModifyDescription(admin, NewProductDescription);
+                    break;
+
+                case "4":
+                    running = false;
+                    break;
+
+                default:
+                    Console.WriteLine("Alegere invalida!");
+
+                    break;
+            }
+        }
+    }
+
+    private void DeleteProduct(Admin admin)
+    {
+        Produs? ProductToDelete = FindProduct();
+
+        if (ProductToDelete != null)
+        {
+            StocMagazin.Remove(ProductToDelete);
+            Console.WriteLine($"Produsul {ProductToDelete.Name} cu ID-ul {ProductToDelete.ID} a fost sters!");
+        }
+    }
+
+    private void UpdateProductStock(Admin admin)
+    {
+        Produs? ProductToUpdate = FindProduct();
+
+        Console.WriteLine("Introduceti noua valoarea a stocului produsului:");
+        int.TryParse(Console.ReadLine(), out int NewStock);
+
+        if (ProductToUpdate != null)
+            ProductToUpdate.ModifyStock(admin, NewStock);
+    }
+
+    private void AddProductDiscount(Admin admin)
+    {
+        Produs? ProductToDiscount = FindProduct();
+        bool running = true;
+        while (running)
+        {
+            Console.WriteLine("Ce tip de reducere doriti sa adaugati produsului?");
+            Console.WriteLine("1. Oferta 2 + 1 gratis");
+            Console.WriteLine("2. Procentaj din pretul actual");
+            Console.WriteLine("3. Valoare fixa");
+            Console.WriteLine("4. Anulare");
+            var input = Console.ReadLine();
+            switch (input)
+            {
+                case "1":
+                    ProductToDiscount.AddDiscount(DiscountTypes.TwoPlusOne, 0);
+                    Console.WriteLine($"Oferta 2 + 1 gratis activata pentru produsul {ProductToDiscount.Name}, ID: {ProductToDiscount.ID}");
+                    break;
+
+                case "2":
+                    int PercentageToDiscount;
+                    Console.WriteLine("Ce procentaj din pretul produsului vreti sa fie redus?");
+                    int.TryParse(Console.ReadLine(), out PercentageToDiscount);
+                    ProductToDiscount.AddDiscount(DiscountTypes.Percentage, PercentageToDiscount);
+                    break;
+
+                case "3":
+                    int FlatValueToDiscount;
+                    Console.WriteLine("Ce valoare vreti sa fie redusa din pretul produsului?");
+                    int.TryParse(Console.ReadLine(), out FlatValueToDiscount);
+                    ProductToDiscount.AddDiscount(DiscountTypes.Constant, FlatValueToDiscount);
+                    break;
+
+                case "4":
+                    running = false;
+                    // exit
+                    break;
+            }
+        }
+    }
+
+    private bool ProductsWithLowStockExist()
+    {
+        bool LowStockProductsExist = false;
+        foreach (Produs produs in StocMagazin)
+        {
+            if (produs.Stock < 10)
+            {
+                LowStockProductsExist = true;
+            }
+        }
+        return LowStockProductsExist;
+    }
+
+    private void ShowProductsWithLowStock()
+    {
+        foreach (Produs produs in StocMagazin)
+        {
+            if (produs.Stock < 10)
+            {
+                Console.WriteLine($"Produsul {produs.Name}, ID: {produs.ID} are stoc redus: {produs.Stock} bucati ramase");
+            }
+        }
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey();
+    }
+
+    public void ManageOrders(Admin admin)
+    {
+        bool running = true;
+        while (running)
+        {
+            Console.WriteLine("Ce actiune doriti sa aplicati asupra comenzilor?");
+            Console.WriteLine("1. Vizualizare");
+            Console.WriteLine("2. Editare");
+            Console.WriteLine("3. Niciuna - iesire");
+            var input = Console.ReadLine();
+
+            switch (input)
+            {
+                case "1":
+                    foreach (Comanda comanda in Comenzi)
+                    {
+                        int count = 1;
+                        Console.WriteLine($"{count}. ID: {comanda.ID}\n " +
+                            $"Produse comandate: {comanda.ProductsOrdered.Keys}, valoare totala {comanda.OrderPrice}\n " +
+                            $"Plasata la data {comanda.PlacementDate}, status: {comanda.Status}");
+                        count ++;
+                    }
+                    break;
+
+                case "2":
+                    bool localRunning = true;
+                    string IdToSearch;
+                    Comanda? OrderToFind = null;
+                    while (true)
+                    {
+                        Console.WriteLine("ID-ul comenzii cautate:");
+                        IdToSearch = Console.ReadLine();
+
+                        if (IdToSearch != null)
+                            break;
+                    }
+
+                    foreach (Comanda comanda in Comenzi)
+                    {
+                        if (comanda.ID == IdToSearch)
+                        {
+                            OrderToFind = comanda;
+                            break;
+                        }
+                    }
+
+                    if (OrderToFind == null)
+                    {
+                        Console.WriteLine("Comanda cu ID-ul specificat nu a fost gasita.");
+                        return;
+                    }
+
+                    if (OrderToFind.Status == OrderStatus.Canceled)
+                    {
+                        Console.WriteLine("Aceasta comanda nu mai poate fi modificata, deoarece a fost anulata");
+                    }
+                    while (localRunning) { 
+                    Console.WriteLine($"Statusul curent al comenzii este {OrderToFind.Status}");
+                    Console.WriteLine("Ce status doriti sa ii dati?");
+                    Console.WriteLine("1. Being processed");
+                    Console.WriteLine("2. Sent");
+                    Console.WriteLine("3. Delivered");
+                    Console.WriteLine("4. Niciunul - anulare");
+                    var StatusInput = Console.ReadLine();
+                        switch (StatusInput)
+                        {
+                            case "1":
+                                if (OrderToFind.Status == OrderStatus.BeingProcessed)
+                                    Console.WriteLine("Comanda are deja acest status!");
+                                else
+                                    OrderToFind.UpdateStatus(admin, OrderStatus.BeingProcessed);
+                                break;
+
+                            case "2":
+                                if (OrderToFind.Status == OrderStatus.Sent)
+                                    Console.WriteLine("Comanda are deja acest status!");
+                                else
+                                    OrderToFind.UpdateStatus(admin, OrderStatus.Sent);
+                                break;
+                            case "3":
+                                if (OrderToFind.Status == OrderStatus.Delivered)
+                                    Console.WriteLine("Comanda are deja acest status!");
+                                else
+                                {
+                                    OrderToFind.UpdateStatus(admin, OrderStatus.Delivered);
+                                    OrderToFind.SetDeliveryDate();
+                                }
+                                break;
+                            case "4":
+                                // exit
+                                break;
+                        }
+                    }
+                break;
+            }
+
+
+        }
+    }
+
+    public void CreateSalesReport(Admin admin)
+    {
+        double TotalSalesFigure = 0, LastMonthSalesFigure = 0;
+        int CanceledOrders = 0;
+        Dictionary<Produs, int> ProductPopularityHashmap = new Dictionary<Produs, int>();
+
+        foreach(Comanda comanda in Comenzi)
+        {
+            TotalSalesFigure += comanda.OrderPrice;
+            if (comanda.PlacementDate > DateOnly.FromDateTime(DateTime.Now.AddDays(-30)) && comanda.Status != OrderStatus.Canceled)
+                LastMonthSalesFigure += comanda.OrderPrice;
+
+            if (comanda.Status == OrderStatus.Canceled)
+                CanceledOrders++;
+
+            foreach(var ProductIntPair in comanda.ProductsOrdered)
+            {
+                if (ProductPopularityHashmap.ContainsKey(ProductIntPair.Key))
+                    ProductPopularityHashmap[ProductIntPair.Key] += ProductIntPair.Value;
+                else
+                    ProductPopularityHashmap.Add(ProductIntPair.Key, ProductIntPair.Value);
+            }
+
+        }
+        Console.WriteLine($"Suma totala de vanzari a magazinului este {TotalSalesFigure}.\n");
+        Console.WriteLine($"Magazinul a avut {Comenzi.Count} comenzi, dintre care doar {CanceledOrders} anulate.\n");
+        Console.WriteLine($"Valoarea medie a unei comenzi este de {TotalSalesFigure / Comenzi.Count}.\n");
+        Console.WriteLine($"Doar in ultimele 30 de zile, valoarea comenzilor a fost de {LastMonthSalesFigure}.\n");
+
+        int MaxValue = ProductPopularityHashmap.Values.Max();
+
+        if ( MaxValue > 0 )
+            Console.WriteLine($"Cele mai vandute produse, cu vanzarea totala de {MaxValue} bucati:\n");
+        foreach (var kvp in ProductPopularityHashmap)
+        {
+            if (kvp.Value == MaxValue && MaxValue != 0 )
+                Console.WriteLine($"{kvp.Key.Name}, ID: {kvp.Key.ID}");
+        }
+            
+    }
 }
