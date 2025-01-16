@@ -3,7 +3,7 @@
 public class Magazin
 {
     private List<Comanda> Comenzi { get; set; }
-    private List<Produs> StocMagazin { get; set; }
+    public List<Produs> StocMagazin { get; private set; }
     public List<User> Users { get; private set; }
 
     public Magazin()

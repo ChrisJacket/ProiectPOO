@@ -19,7 +19,7 @@ public enum ProductCategory
 public class Produs
 {
     public string ID { get; private set; }
-    private string Name { get; set; }
+    public string Name { get; private set; }
     private string? Description { get; set; }
     public double Price { get; private set; }
     private int Stock { get; set; }
