@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualBasic;
-using
+using System.Linq;
 
 
 using System.Xml.Schema;
@@ -28,6 +28,7 @@ public abstract class User
         UserType = userType;
         
     }
+
     
     public bool VerifyUserCredentials(string emailToVerify, string passwordToVerify)
     {
@@ -39,11 +40,13 @@ public abstract class User
 public class Client : User
 {
     public Dictionary<Produs, int> ShoppingCart { get; protected set; }
+    public List<Produs> Wishlist { get; protected set; }
 
     public Client(string firstName, string lastName, string password, string emailAddress)
         : base(firstName, lastName, password, emailAddress, UserTypes.Client)
     {
         ShoppingCart = new Dictionary<Produs, int>();
+        Wishlist = new List<Produs>();
     }
 
     public void RunMenu()
@@ -60,144 +63,64 @@ public class Client : User
             Console.WriteLine("5. Anuleaza o comanda");
             Console.WriteLine("6. Adauga in wishlist");
             Console.WriteLine("7. Afiseaza wishlist-ul");
-            Console.WriteLine("8. Adauga rating unui produs");
-            Console.WriteLine("9. Iesi");
+            Console.WriteLine("8. Sterge din Wishlist");
+            Console.WriteLine("9. Adauga rating unui produs");
+            Console.WriteLine("10. Iesi");
             Console.Write("Alegeti optiunea: ");
             var input = Console.ReadLine();
 
             switch (input)
             {
                 case "1":
-                    public void ViewProducts()
-                    {
-                        int i=0;
-                        foreach (var kvp in ShoppingCart)
-                        {
-                            Console.WriteLine($"{i}. {kvp.Key}");
-                            i++;
-                        }
-
-                    }
-                    // ViewProducts();
-                    //
-                    // listeaza toate produsele, cu un contor care le numeroteaza in afisaj
-                    // pentru a le putea selecta
-                        break;
+                    ViewProducts(this.client);
+                    break;
 
                 case "2":
-                public void AddToCart(Produs produs)
-                {
-                    Console.WriteLine("Ce produs doriti sa adaugati la cos?");
-                    string NumeProd = Console.ReadLine();
-                    foreach(Produs.Name in StocMagazin)
-                    {
-                        if (Produs.Name.Equals(NumeProd))
-                        {
-                            ShoppingCart.Add(produs, 1);
-                            break;
-                        }
-                    }
-                    Console.WriteLine("Doriti sa adaugati produsul de mai multe ori la cos?");
-                    string mProd = Console.ReadLine();
-                    if (mProd.Equals("da"))
-                    {
-                        Console.WriteLine("De cate ori adaugati produsul la cos?");
-                        string nrProd = Console.ReadLine();
-                        int nr = int.Parse(nrProd);
-                        ShoppingCart.Add(produs, nr);
-                    }
-                }   
-                    // AddToCart();
+                    AddToCart(this.client);
                     break;
 
                 case "3":
-                    public void EditCart()
-                    {
-                        if (ShoppingCart.Any())
-                        {
-                            Console.WriteLine("Ce produs doriti sa modificati?");
-                            int mod = int.Parse(Console.ReadLine());
-                            Console.WriteLine("1. Stergeti produsul din cos");
-                            Console.WriteLine("2. Modificati numarul de produse");
-                            switch (mod)
-                            {
-                                case 1:
-                                    void RemoveFromCart()
-                                    {
-                                        if (mod - 1 >= 0 && mod - 1 < ShoppingCart.Count)
-                                        {
-                                            ShoppingCart.RemoveAt(mod - 1);
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("Numar invalid");
-                                        }
-                                    }
-                                    break;
-                                case 2:
-                                    void ModifyProdNr();
-                                    {
-                                        Console.WriteLine("Modificati numarul de produse la: ");
-                                        int nr = int.Parse(Console.ReadLine());
-                                        ShoppingCart[ShoppingCart.ElementAt(mod-1)] = nr;
-                                    }
-                                    break;
-                            }
-
-                        }
-                        else
-                        Console.WriteLine("Cosul de cumparaturi este gol - nu aveti ce sa modificati.");
-                    }
-                    // EditCart();
+                    EditCart(this.client);
                     break;
+
                 case "4":
-                    public void FinalizeOrder()
-                    {
-                        Console.WriteLine("Introduceti Adressa: ");
-                        DeliveryAdress.Address = Console.ReadLine();
-                        Console.WriteLine("Introduceti codul postal");
-                        DeliveryAddress.PostCode = Console.ReadLine();
-                        Console.WriteLine("Introduceti orasul");
-                        DeliveryAddress.City = Console.ReadLine();
-                        Console.WriteLine("Introduceti tara");
-                        DeliveryAddress.Country = Console.ReadLine();
-                        
+                    FinalizeOrder(this.client);
+                    break;
 
-                        magazin.AddOrder(ShoppingCart, this.Client, OrderStatus.BeingProcessed, DeliveryAddress);
-                    }
-                    // FinalizeOrder();
-                    //
-                    // Creaza o comanda cu toate produsele din cos
-                    break;
                 case "5":
-                    // CancelOrder();
+                    CancelOrder(this.client);
                     break;
+
                 case "6":
-                    // AddToWishlist();
+                    AddToWishlist(this.client);
                     break;
+
                 case "7":
-                    // ViewWishlist();
-                    //
-                    // din wishlist produsele trebuie sa se poata adauga in cart
+                    ViewWishlist(this.client);
                     break;
+
                 case "8":
-                    // RateProduct();
-                    //
-                    // valabil doar pentru produsele care au fost in comenzi asociate clientului
-                    // poate le listam si cerem alegerea pentru ce produs sa fie rate-uit?
+                    RemoveFromWishlist(this.client);
                     break;
+
                 case "9":
+                    AddProductRating(this.client);
+                    break;
+
+                case "10":
                     // Exit
                     running = false;
                     break;
+
                 default:
                     Console.WriteLine("Optiune invalida. Incercati din nou.");
                     break;
             }
         }
     }
-
 }
+
+
 
 public class Admin : User
 {
