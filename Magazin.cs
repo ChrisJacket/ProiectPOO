@@ -393,7 +393,7 @@ public class Magazin
                         Console.WriteLine($"{count}. ID: {comanda.ID}\n " +
                             $"Produse comandate: {comanda.ProductsOrdered.Keys}, valoare totala {comanda.OrderPrice}\n " +
                             $"Plasata la data {comanda.PlacementDate}, status: {comanda.Status}");
-                        count += 1;
+                        count ++;
                     }
                     break;
 
@@ -470,5 +470,46 @@ public class Magazin
 
 
         }
+    }
+
+    public void CreateSalesReport(Admin admin)
+    {
+        double TotalSalesFigure = 0, LastMonthSalesFigure = 0;
+        int CanceledOrders = 0;
+        Dictionary<Produs, int> ProductPopularityHashmap = new Dictionary<Produs, int>();
+
+        foreach(Comanda comanda in Comenzi)
+        {
+            TotalSalesFigure += comanda.OrderPrice;
+            if (comanda.PlacementDate > DateOnly.FromDateTime(DateTime.Now.AddDays(-30)) && comanda.Status != OrderStatus.Canceled)
+                LastMonthSalesFigure += comanda.OrderPrice;
+
+            if (comanda.Status == OrderStatus.Canceled)
+                CanceledOrders++;
+
+            foreach(var ProductIntPair in comanda.ProductsOrdered)
+            {
+                if (ProductPopularityHashmap.ContainsKey(ProductIntPair.Key))
+                    ProductPopularityHashmap[ProductIntPair.Key] += ProductIntPair.Value;
+                else
+                    ProductPopularityHashmap.Add(ProductIntPair.Key, ProductIntPair.Value);
+            }
+
+        }
+        Console.WriteLine($"Suma totala de vanzari a magazinului este {TotalSalesFigure}.\n");
+        Console.WriteLine($"Magazinul a avut {Comenzi.Count} comenzi, dintre care doar {CanceledOrders} anulate.\n");
+        Console.WriteLine($"Valoarea medie a unei comenzi este de {TotalSalesFigure / Comenzi.Count}.\n");
+        Console.WriteLine($"Doar in ultimele 30 de zile, valoarea comenzilor a fost de {LastMonthSalesFigure}.\n");
+
+        int MaxValue = ProductPopularityHashmap.Values.Max();
+
+        if ( MaxValue > 0 )
+            Console.WriteLine($"Cele mai vandute produse, cu vanzarea totala de {MaxValue} bucati:\n");
+        foreach (var kvp in ProductPopularityHashmap)
+        {
+            if (kvp.Value == MaxValue && MaxValue != 0 )
+                Console.WriteLine($"{kvp.Key.Name}, ID: {kvp.Key.ID}");
+        }
+            
     }
 }

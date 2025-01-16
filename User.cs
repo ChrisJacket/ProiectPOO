@@ -137,21 +137,19 @@ public class Admin : User
                     
                     // functie multifunctionala pentru adaugat, editat si sters produse
                     // inclusiv administrat stocurile
-                    // produsele cu stoc redus ar trebui semnalate cumva
-                    // adaugatul de discounturi probabil vine tot aici
+                    // produsele cu stoc redus sunt semnalate
+                    // adaugatul de discounturi vine tot aici
                     break;
                 case "2":
-                    // ManageOrders();
-                    //
-                    // pentru vizualizat, editat si modificat statusul comenzilor
+                    magazin.ManageOrders(ThisAdmin);
+                    
+                    // pentru vizualizat si modificat statusul comenzilor
                     break;
                 case "3":
-                    // CreateSalesReport();
-                    //
-                    // asta ar trebui sa ofere statistici
-                    // precum sa treaca prin toate comenzile existente care nu au fost anulate
-                    // si sa arate cele mai cumparate produse
-                    // sau cifra totala de venituri
+                    magazin.CreateSalesReport(ThisAdmin);
+                    
+                    // ofera statistici
+                    // precum cifra de afaceri, numarul de comenzi, cele mai vandute produse
                     break;
                 case "4":
                     // Exit

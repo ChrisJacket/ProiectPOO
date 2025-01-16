@@ -1,4 +1,6 @@
-﻿namespace ProiectPOO;
+﻿using System.Runtime.ConstrainedExecution;
+
+namespace ProiectPOO;
 internal class Program
 {
     static void Main(string[] args)
@@ -81,6 +83,7 @@ internal class Program
             {
                 Console.WriteLine("A aparut o eroare. Asigurati-va ca nu lasati niciun camp gol si incercati din nou");
                 await Task.Delay(2000);
+                Console.Clear();
             }
 
             Console.WriteLine("Introduceti-va numele de familie:");
